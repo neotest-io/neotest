@@ -1,0 +1,3 @@
+testslide
+black
+pylama
