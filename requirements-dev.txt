@@ -1,3 +1,4 @@
 testslide
 black
-pylama
+flake8
+isort

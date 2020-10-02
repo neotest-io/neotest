@@ -2,10 +2,8 @@
 # See http://www.neotest.io for more information
 # This program is published under the MIT license
 
-import logging
-import sys
 import builtins
-
+import logging
 
 __all__ = ["Log"]
 
@@ -13,14 +11,22 @@ logging.PRINT: int = 1
 logging.addLevelName(logging.PRINT, "PRINT")
 
 logging.basicConfig(
-        level=logging.PRINT, 
-        format="%(asctime)s %(relativeCreated)d %(name)s %(threadName)s %(filename)s:%(lineno)d:%(funcName)s() %(levelname)s: %(message)s", 
-    )
+    level=logging.PRINT,
+    format=""
+    "%(asctime)s "
+    "%(relativeCreated)d "
+    "%(name)s "
+    "%(threadName)s "
+    "%(filename)s:%(lineno)d:%(funcName)s() "
+    "%(levelname)s: %(message)s",
+)
 
 log_default: str = "neotest"
 
+
 def my_print(message: str, *args, **kwargs):
     logging.log(logging.PRINT, message, *args, **kwargs)
+
 
 class Log(object):
     """
@@ -44,7 +50,7 @@ class Log(object):
     def info(self, message: str):
         self._logger.info(message)
 
-    def warning(self,  message: str):
+    def warning(self, message: str):
         self._logger.warning(message)
 
     def error(self, message: str):
@@ -64,4 +70,3 @@ class Log(object):
 
     def _print_restore(self):
         builtins.print = builtins.__print__
-

@@ -6,4 +6,4 @@ from .log import Log
 
 log = Log()
 
-__all__ = ["log"]
+__all__ = ["Log", "log"]
