@@ -10,8 +10,6 @@ import neotest
 
 __all__ = ["main"]
 
-log = neotest.log
-
 
 def _check_path_tests(test: str) -> str:
     if not (os.path.isdir(test) or os.path.isfile(test) or os.path.isfile(test + ".py")):
@@ -108,13 +106,11 @@ def _args_parse_and_validate(cmdline: list = sys.argv[1:]) -> argparse.Namespace
         action="store",
         dest="log",
         default="print",
-        choices=["print", "info", "debug", "cli"],
+        choices=["print", "info", "debug"],
         help="Log filter for stdout runtime printed messages: "
-        "  'print': will log only the \"print()\" statements (default option). "
-        "  'info':  displays 'print' and INFO logs. "
-        "  'cli':   displays commands used by CLI based interfaces. "
-        "  'debug': displays 'print', 'info', 'cli' and DEBUG logs. "
-        "Each logging level includes the previous except for 'cli'.",
+        "  'print': will log 'critical', 'error', 'warning' and print's (default option). "
+        "  'info':  will log 'print' and 'info' logs. "
+        "  'debug': will log 'print', 'info' and 'debug' logs. ",
     )
 
     parser.add_argument(
@@ -154,6 +150,21 @@ def _args_parse_and_validate(cmdline: list = sys.argv[1:]) -> argparse.Namespace
 
     args = parser.parse_args(cmdline)
 
+    return args
+
+
+def main():
+
+    # parse command line options
+    args = _args_parse_and_validate()
+
+    # configures logging; from this moment on 'print' is rerouted as well
+    neotest.logging.start(args.log.upper())
+    # logger for this module
+    log = neotest.logging.getLogger("main")
+
+    log.debug(args)
+
     log.debug("--tests:      %s" % args.tests)
     log.debug("--steps:      %s" % args.steps)
     log.debug("--conf:       %s" % args.conf)
@@ -164,13 +175,32 @@ def _args_parse_and_validate(cmdline: list = sys.argv[1:]) -> argparse.Namespace
     log.debug("--label:      %s" % args.label)
     log.debug("--jenkins:    %s" % args.jenkins)
 
-    return args
+    # test: start few threads
+    ths = []
+    for i in range(10):
+        th = neotest.executor.ExecutorTh(name="ExecTh%d" % i)
+        th.start()
+        ths.append(th)
 
+    # test: start few processes
+    procs = []
+    for i in range(10):
+        p = neotest.executor.ExecutorProc(name="ExecProc%d" % i)
+        p.start()
+        procs.append(p)
 
-def main():
-    args = _args_parse_and_validate()
+    neotest.sleep(0.3)
 
-    log.debug(args)
+    for th in ths:
+        print("%s join()" % th.name)
+        th.join()
+
+    for p in procs:
+        print("%s terminate()" % p.name)
+        p.terminate()
+
+    # stops logging instance
+    neotest.logging.stop()
 
 
 if __name__ == "__main__":
